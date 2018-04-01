@@ -1,0 +1,6 @@
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\bin\Debug\HomePhoneUSBModemController.exe.config
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\bin\Debug\HomePhoneUSBModemController.exe
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\bin\Debug\HomePhoneUSBModemController.pdb
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\obj\Debug\HomePhoneUSBModemController.csprojResolveAssemblyReference.cache
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\obj\Debug\HomePhoneUSBModemController.exe
+C:\Users\Benjamin\Dropbox\Public\HomePhoneUSBModemController\HomePhoneUSBModemController\obj\Debug\HomePhoneUSBModemController.pdb
