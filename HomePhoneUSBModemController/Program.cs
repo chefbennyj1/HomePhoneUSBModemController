@@ -10,14 +10,17 @@ namespace HomePhoneUSBModemController
         private static SerialPort Sp;
         private static string ip { get; set; }
         private static string port { get; set; }
+        private static string COMPort = "";
         static void Main()
         {
             ip = "http://192.168.2.48"; //MagicMirror2 IP Address
             port = "8080"; //MagicMirror2 Port
-            var COMPort = "COM4"; //COM Port of the USB Modem. Look in device Manager in windows to locate this info
+            COMPort = "COM4"; //COM Port of the USB Modem. Look in device Manager in windows to locate this info
+            Console.WriteLine("Creating new serial port interface ...");
             try
             {
-                Sp = new SerialPort(COMPort, 9600, Parity.None, 8, StopBits.One) { DtrEnable = true };
+                Sp = new SerialPort(COMPort, 9600, Parity.None, 8, StopBits.One) {DtrEnable = true};
+
 
                 Sp.Open();
 
@@ -25,25 +28,32 @@ namespace HomePhoneUSBModemController
                 Thread.Sleep(1000);
 
                 Sp.DataReceived += sp_DataReceived;
+                //Sp.Disposed +=Sp_Disposed;
+
             }
             catch (Exception ex)
-            { Console.WriteLine(ex.Message); }
+            {
+                Console.WriteLine(ex.Message);
+            } 
+
+            Console.WriteLine("Ready for phone call...\n");
             Console.ReadLine();
         }
+
 
         static void sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
 
             var currentName = "";
             var currentNumber = "";
-            try
-            {
+            
 
                 Thread.Sleep(500);
 
                 string x = Sp.ReadExisting();
 
-
+                try
+                {
                 string rString = x.Replace("\r\n", " ");
                 string[] lines = rString.Split(' ');
 
@@ -69,37 +79,38 @@ namespace HomePhoneUSBModemController
                         var num = (lines[i].Replace("NMBR=", ""));
                         currentNumber = num;
                     }
-
-                    if (x.ToLower().Contains("ring") &&
+                }
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex.Message);
+            }
+                if (x.ToLower().Contains("ring") &&
                         currentName != string.Empty && currentNumber != string.Empty)
                     {
                         Console.WriteLine(currentName);
                         try
                         {
-                            var urlAlert = string.Format("{0}:{1}/api/v1/modules/alert/SHOW_ALERT?message={2}\n{3}&title=Incoming Phone Call", ip, port, currentName, currentNumber);
-
-                            WebRequest showPhoneNumberOnScreen = WebRequest.Create(urlAlert);
-                            showPhoneNumberOnScreen.Method = "POST";
-                            showPhoneNumberOnScreen.GetResponse();
+                            var urlAlert =
+                                string.Format(
+                                    "{0}:{1}/api/v1/modules/alert/SHOW_ALERT?timer=8500&message={2}\n{3}&title=Incoming Phone Call",
+                                    ip, port, currentName, currentNumber);
+                           
+                            var request = (HttpWebRequest)WebRequest.Create(urlAlert);
+                            request.Method = "POST";
+                            request.KeepAlive = false;
+                            var response = (HttpWebResponse)request.GetResponse();
+                            Console.Write("Sent to MagicMirror: " + response.StatusDescription + "\n");
+                              
                         }
-                        catch { }
-
-                        //Give the users enough time to look at the magic mirror to see who is calling.
-                        Thread.Sleep(8500); //That seems like enough time to glace at a name ... ???
-                        //Then remove the Alert on the mirrors screen
-                        string urlCloseAlert = string.Format("{0}:{1}/api/v1/modules/alert/HIDE_ALERT", ip, port);
-                        WebRequest removePhoneNumberOnScreen = WebRequest.Create(urlCloseAlert);
-                        removePhoneNumberOnScreen.Method = "POST";
-                        removePhoneNumberOnScreen.GetResponse();
-
-
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                   
                     }
-                }
-            }
-            catch
-            {
+            Sp.DiscardInBuffer();
 
-            }
 
         }
     }
